@@ -9,52 +9,30 @@ jobs:
   deploy:
     runs-on:
       - self-hosted
-      - Windows
-      - X64
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Show Workspace
-        shell: powershell
+        shell: pwsh
         run: |
           Write-Host "Workspace: $env:GITHUB_WORKSPACE"
           Get-ChildItem $env:GITHUB_WORKSPACE -Recurse
 
-      - name: Verify index.html exists
+      - name: Create IIS Folder if Missing
         shell: pwsh
         run: |
-          if (Test-Path "$env:GITHUB_WORKSPACE\index.html") {
-            Write-Host "index.html found."
-          } else {
-            Write-Error "index.html not found in repository!"
-            exit 1
+          if (!(Test-Path "C:\inetpub\wwwroot")) {
+            New-Item -ItemType Directory -Path "C:\inetpub\wwwroot"
           }
 
-      - name: Stop IIS Website
-        shell: powershell
-        run: |
-          Import-Module WebAdministration
-          Stop-Website -Name "Default Web Site"
-
       - name: Copy Files to IIS
-        shell: powershell
+        shell: pwsh
         run: |
-          $source = $env:GITHUB_WORKSPACE
-          $destination = "C:\inetpub\wwwroot"
+          Copy-Item "$env:GITHUB_WORKSPACE\*" "C:\inetpub\wwwroot" -Recurse -Force -Verbose
 
-          Write-Host "Source: $source"
-          Write-Host "Destination: $destination"
-
-          Copy-Item "$source\*" "$destination" -Recurse -Force -Verbose
-
-      - name: Start IIS Website
-        shell: powershell
+      - name: List IIS Files
+        shell: pwsh
         run: |
-          Import-Module WebAdministration
-          Start-Website -Name "Default Web Site"
-
-      - name: Verify Deployment
-        shell: powershell
-        run: |
-          Get-ChildItem "C:\inetpub\wwwroot"
+          Get-ChildItem "C:\inetpub\wwwroot" -Recurse
