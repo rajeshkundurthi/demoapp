@@ -22,7 +22,7 @@ jobs:
           Get-ChildItem $env:GITHUB_WORKSPACE -Recurse
 
       - name: Verify index.html exists
-        shell: powershell
+        shell: pwsh
         run: |
           if (Test-Path "$env:GITHUB_WORKSPACE\index.html") {
             Write-Host "index.html found."
