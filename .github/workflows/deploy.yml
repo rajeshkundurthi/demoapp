@@ -13,19 +13,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Stop IIS Website
+      - name: Copy files to IIS
         shell: powershell
         run: |
-          Import-Module WebAdministration
-          Stop-Website -Name "Default Web Site"
+          $source = "${{ github.workspace }}"
+          $destination = "C:\inetpub\wwwroot"
 
-      - name: Copy Files
-        shell: powershell
-        run: |
-          Copy-Item "${{ github.workspace }}\*" "C:\inetpub\wwwroot\" -Recurse -Force
+          Write-Host "Source: $source"
+          Write-Host "Destination: $destination"
 
-      - name: Start IIS Website
-        shell: powershell
-        run: |
-          Import-Module WebAdministration
-          Start-Website -Name "Default Web Site"
+          Copy-Item "$source\*" $destination -Recurse -Force
