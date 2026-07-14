@@ -10,14 +10,49 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-      - name: List files
+      - name: Show Workspace
         shell: powershell
         run: |
-          Get-ChildItem "${{ github.workspace }}" -Recurse
+          Write-Host "Workspace: $env:GITHUB_WORKSPACE"
+          Get-ChildItem $env:GITHUB_WORKSPACE -Recurse
 
-      - name: Copy to IIS
+      - name: Verify index.html exists
         shell: powershell
         run: |
-          Copy-Item "${{ github.workspace }}\*" "C:\inetpub\wwwroot" -Recurse -Force
+          if (Test-Path "$env:GITHUB_WORKSPACE\index.html") {
+            Write-Host "index.html found."
+          } else {
+            Write-Error "index.html not found in repository!"
+            exit 1
+          }
+
+      - name: Stop IIS Website
+        shell: powershell
+        run: |
+          Import-Module WebAdministration
+          Stop-Website -Name "Default Web Site"
+
+      - name: Copy Files to IIS
+        shell: powershell
+        run: |
+          $source = $env:GITHUB_WORKSPACE
+          $destination = "C:\inetpub\wwwroot"
+
+          Write-Host "Source: $source"
+          Write-Host "Destination: $destination"
+
+          Copy-Item "$source\*" "$destination" -Recurse -Force -Verbose
+
+      - name: Start IIS Website
+        shell: powershell
+        run: |
+          Import-Module WebAdministration
+          Start-Website -Name "Default Web Site"
+
+      - name: Verify Deployment
+        shell: powershell
+        run: |
+          Get-ChildItem "C:\inetpub\wwwroot"
