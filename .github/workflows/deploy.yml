@@ -10,16 +10,14 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Copy website files
-  shell: powershell
-  run: |
-    $source = "${{ github.workspace }}"
-    $destination = "C:\inetpub\wwwroot"
+      - name: List files
+        shell: powershell
+        run: |
+          Get-ChildItem "${{ github.workspace }}" -Recurse
 
-    Write-Host "Copying from $source"
-    Write-Host "Copying to $destination"
-
-    Copy-Item -Path "$source\*" -Destination $destination -Recurse -Force -Verbose
+      - name: Copy to IIS
+        shell: powershell
+        run: |
+          Copy-Item "${{ github.workspace }}\*" "C:\inetpub\wwwroot" -Recurse -Force
