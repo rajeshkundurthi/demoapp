@@ -13,13 +13,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Copy files to IIS
-        shell: powershell
-        run: |
-          $source = "${{ github.workspace }}"
-          $destination = "C:\inetpub\wwwroot"
+      - name: Copy website files
+  shell: powershell
+  run: |
+    $source = "${{ github.workspace }}"
+    $destination = "C:\inetpub\wwwroot"
 
-          Write-Host "Source: $source"
-          Write-Host "Destination: $destination"
+    Write-Host "Copying from $source"
+    Write-Host "Copying to $destination"
 
-          Copy-Item "$source\*" $destination -Recurse -Force
+    Copy-Item -Path "$source\*" -Destination $destination -Recurse -Force -Verbose
