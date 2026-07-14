@@ -7,32 +7,36 @@ on:
 
 jobs:
   deploy:
-    runs-on:
-      - self-hosted
+    runs-on: self-hosted
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Show Workspace
-        shell: pwsh
+        shell: powershell
         run: |
           Write-Host "Workspace: $env:GITHUB_WORKSPACE"
           Get-ChildItem $env:GITHUB_WORKSPACE -Recurse
 
-      - name: Create IIS Folder if Missing
-        shell: pwsh
+      - name: Verify IIS Folder
+        shell: powershell
         run: |
-          if (!(Test-Path "C:\inetpub\wwwroot")) {
-            New-Item -ItemType Directory -Path "C:\inetpub\wwwroot"
-          }
+          Test-Path "C:\inetpub\wwwroot"
+          Get-ChildItem "C:\inetpub\wwwroot"
 
-      - name: Copy Files to IIS
-        shell: pwsh
+      - name: Copy Files
+        shell: powershell
         run: |
-          Copy-Item "$env:GITHUB_WORKSPACE\*" "C:\inetpub\wwwroot" -Recurse -Force -Verbose
+          $source = $env:GITHUB_WORKSPACE
+          $destination = "C:\inetpub\wwwroot"
 
-      - name: List IIS Files
-        shell: pwsh
+          Write-Host "Source: $source"
+          Write-Host "Destination: $destination"
+
+          Copy-Item -Path "$source\*" -Destination $destination -Recurse -Force -Verbose
+
+      - name: Verify Files Copied
+        shell: powershell
         run: |
           Get-ChildItem "C:\inetpub\wwwroot" -Recurse
