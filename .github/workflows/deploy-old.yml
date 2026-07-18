@@ -9,10 +9,6 @@ jobs:
   deploy:
     runs-on: self-hosted
 
-    environment:
-      name: Production
-      url: http://localhost
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -29,7 +25,7 @@ jobs:
           Test-Path "C:\inetpub\wwwroot"
           Get-ChildItem "C:\inetpub\wwwroot"
 
-      - name: Copy Files to IIS
+      - name: Copy Files
         shell: powershell
         run: |
           $source = $env:GITHUB_WORKSPACE
