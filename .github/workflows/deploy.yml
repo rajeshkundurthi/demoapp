@@ -6,38 +6,41 @@ on:
       - main
 
 jobs:
-  build:
-    runs-on: self-hosted
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Upload source
-        uses: actions/upload-artifact@v4
-        with:
-          name: website
-          path: .
-
   deploy:
-    needs: build
     runs-on: self-hosted
 
     environment:
       name: Production
+      url: http://localhost
 
     steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: website
-          path: website
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-      - name: Deploy to IIS
-        shell: pwsh
+      - name: Show Workspace
+        shell: powershell
         run: |
-          Copy-Item "website\*" "C:\inetpub\wwwroot" -Recurse -Force
+          Write-Host "Workspace: $env:GITHUB_WORKSPACE"
+          Get-ChildItem $env:GITHUB_WORKSPACE -Recurse
 
-      - name: Verify Deployment
-        shell: pwsh
+      - name: Verify IIS Folder
+        shell: powershell
+        run: |
+          Test-Path "C:\inetpub\wwwroot"
+          Get-ChildItem "C:\inetpub\wwwroot"
+
+      - name: Copy Files to IIS
+        shell: powershell
+        run: |
+          $source = $env:GITHUB_WORKSPACE
+          $destination = "C:\inetpub\wwwroot"
+
+          Write-Host "Source: $source"
+          Write-Host "Destination: $destination"
+
+          Copy-Item -Path "$source\*" -Destination $destination -Recurse -Force -Verbose
+
+      - name: Verify Files Copied
+        shell: powershell
         run: |
           Get-ChildItem "C:\inetpub\wwwroot" -Recurse
