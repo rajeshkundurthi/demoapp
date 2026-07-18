@@ -26,14 +26,14 @@ jobs:
       - name: Verify IIS Folder
         shell: powershell
         run: |
-          Test-Path "C:\inetpub\wwwroot"
-          Get-ChildItem "C:\inetpub\wwwroot"
+          Test-Path "C:New Folder\inetpub\wwwroot"
+          Get-ChildItem "C:New Folder\inetpub\wwwroot"
 
       - name: Copy Files to IIS
         shell: powershell
         run: |
           $source = $env:GITHUB_WORKSPACE
-          $destination = "C:\inetpub\wwwroot"
+          $destination = "C:New Folder\inetpub\wwwroot"
 
           Write-Host "Source: $source"
           Write-Host "Destination: $destination"
@@ -43,4 +43,4 @@ jobs:
       - name: Verify Files Copied
         shell: powershell
         run: |
-          Get-ChildItem "C:\inetpub\wwwroot" -Recurse
+          Get-ChildItem "C:New Folder\inetpub\wwwroot" -Recurse
